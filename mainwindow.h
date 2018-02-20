@@ -57,12 +57,15 @@ private:
 
     void initUI();                  //初始化界面
     void deleteUI();                //清除构建的元素，防止内存泄漏
-    void setTextEdit();
+    void setTextEdit();             //初始化编辑器，并将代码编辑器放在窗口中间
+
+    bool SaveAs();                  //另存为
+    bool SaveFile(const QString &fileName);     //根据路径将文件保存
 
 //槽函数
 private slots:
     void NewFile();
-    void SaveFile();
+    void Save();
     void OpenFile();
     void Run();
     void Build();

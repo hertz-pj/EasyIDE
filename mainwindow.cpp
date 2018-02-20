@@ -2,6 +2,10 @@
 #include "ui_mainwindow.h"
 
 #include <QDesktopWidget>
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QTextStream>
+
 #include <Qsci/qscilexercpp.h>
 #include <Qsci/qscilexer.h>
 
@@ -48,11 +52,22 @@ void MainWindow::CreateActions()
     //保存
     saveAction = new QAction(QIcon(":/images/filesave.png"), tr("&保存"), this);
     saveAction->setStatusTip(tr("保存文件"));
-    connect(saveAction, SIGNAL(triggered()), this, SLOT(SaveFile()));
+    connect(saveAction, SIGNAL(triggered()), this, SLOT(Save()));
 
+    //运行
     runAction = new QAction(QIcon(":/images/run.png") ,tr("&运行"), this);
+    runAction->setStatusTip(tr("运行该程序"));
+    connect(runAction, SIGNAL(triggered()), this, SLOT(Run()));
+
+    //构建
     buildAction = new QAction(QIcon(":/images/compile.png"), tr("&编译"), this);
+    buildAction->setStatusTip(tr("构建该程序"));
+    connect(buildAction, SIGNAL(triggered()), this, SLOT(Build()));
+
+    //相关
     aboutAction = new QAction(QIcon(":/images/about.png") ,tr("&关于"), this);
+    aboutAction->setStatusTip(tr("关于我们"));
+    connect(aboutAction, SIGNAL(triggered()), this, SLOT(About()));
 }
 
 /**
@@ -162,12 +177,12 @@ void MainWindow::setTextEdit()
 
 void MainWindow::NewFile()
 {
-
+    textEdit->clear();
 }
 
-void MainWindow::SaveFile()
+void MainWindow::Save()
 {
-
+    SaveAs();
 }
 
 void MainWindow::OpenFile()
@@ -188,4 +203,37 @@ void MainWindow::Build()
 void MainWindow::About()
 {
 
+}
+
+bool MainWindow::SaveAs()
+{
+    QString fileName = QFileDialog::getSaveFileName(this,
+            "", //对话框标题
+            "", //默认路径
+            tr("C++文件 (*.cpp)"));
+    if (fileName.isEmpty())
+        return false;
+
+    return SaveFile(fileName);
+}
+
+bool MainWindow::SaveFile(const QString &fileName)
+{
+    QFile file(fileName);
+
+    if (!file.open(QFile::WriteOnly))
+    {
+        QMessageBox::warning(this, tr("简易编辑器"),
+                             tr("不能存储文件 %1:\n%2.")
+                             .arg(fileName)
+                             .arg(file.errorString()));
+        return false;
+    }
+
+    QTextStream out(&file);
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+    out << textEdit->text();
+    QApplication::restoreOverrideCursor();
+
+    return true;
 }
