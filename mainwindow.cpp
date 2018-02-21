@@ -1,11 +1,15 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include <stdio.h>
+
 #include <QDesktopWidget>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QTextStream>
+#include <QDebug>
 
+#include <Qsci/qsciapis.h>
 #include <Qsci/qscilexercpp.h>
 #include <Qsci/qscilexer.h>
 
@@ -156,11 +160,22 @@ void MainWindow::setTextEdit()
 {
     //编辑框
     textEdit = new QsciScintilla;
-    QsciLexerCPP *textLexer = new QsciLexerCPP;
-    textLexer->setColor(QColor(Qt:: yellow),QsciLexerCPP::CommentLine);    //设置自带的注释行为绿色
-    textEdit->setLexer(textLexer);
+    QsciLexerCPP *textLexer = new QsciLexerCPP;     //C++词法分析器
+//    textLexer->setColor(QColor(Qt:: yellow),QsciLexerCPP::CommentLine);    //设置自带的注释行为绿色
+    textEdit->setLexer(textLexer);      //添加c++词法分析器
+    textEdit->setAutoIndent(true);      //添加自动缩进
 
-    //设置行数
+    //自动补齐
+    QsciAPIs *apis = new QsciAPIs(textLexer);
+    apis->add(QString("int"));
+    apis->prepare();
+
+    textEdit->setAutoCompletionSource(QsciScintilla::AcsAPIs);
+    textEdit->setAutoCompletionCaseSensitivity(true);
+    textEdit->setAutoCompletionThreshold(1);
+    textEdit->setAutoCompletionFillupsEnabled(true);
+
+    //设置行数区域
     textEdit->setMarginType(0, QsciScintilla::NumberMargin);
     textEdit->setMarginLineNumbers(0, true);
     textEdit->setMarginWidth(0,30);
@@ -190,23 +205,51 @@ void MainWindow::OpenFile()
 
 }
 
+/**
+ * @brief MainWindow::Run
+ * 运行程序
+ */
 void MainWindow::Run()
 {
-
+    QString destFile = curFile;
+    destFile.replace(".cpp", "");
+    QString command = "start /b g++ -o "+ destFile + " " +curFile;
+    qDebug() << command;
+    system(command.toStdString().data());
+    system(destFile.toStdString().data());
 }
 
+/**
+ * @brief MainWindow::Build
+ * 构建程序
+ */
 void MainWindow::Build()
 {
+    QString destFile = curFile;
+    destFile.replace(".cpp", "");
+    QString command = "start /b g++ -o "+ destFile + " " +curFile;
+    qDebug() << command;
+    system(command.toStdString().data());
 
 }
 
+/**
+ * @brief MainWindow::About
+ * 编译程序
+ */
 void MainWindow::About()
 {
 
 }
 
+/**
+ * @brief MainWindow::SaveAs
+ * @return 存储成功返回true，失败返回false
+ * 另存为
+ */
 bool MainWindow::SaveAs()
 {
+    //通过对话框获取文件名路径
     QString fileName = QFileDialog::getSaveFileName(this,
             "", //对话框标题
             "", //默认路径
@@ -217,6 +260,12 @@ bool MainWindow::SaveAs()
     return SaveFile(fileName);
 }
 
+/**
+ * @brief MainWindow::SaveFile
+ * 实现将文件保存至fileName路径
+ * @param fileName
+ * @return bool
+ */
 bool MainWindow::SaveFile(const QString &fileName)
 {
     QFile file(fileName);
@@ -235,5 +284,12 @@ bool MainWindow::SaveFile(const QString &fileName)
     out << textEdit->text();
     QApplication::restoreOverrideCursor();
 
+    setCurrentFile(fileName);
+
     return true;
+}
+
+void MainWindow::setCurrentFile(const QString &fileName)
+{
+    curFile = fileName;
 }

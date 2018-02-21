@@ -46,8 +46,7 @@ private:
     //textEdit
 //    QTextEdit *textEdit;
     QsciScintilla *textEdit;    //代码编辑框
-
-    QString curFilePath;        //当前打开文件的路径
+    QString curFile;            //当前打开文件的路径
 
 private:
     //初始化函数
@@ -61,6 +60,7 @@ private:
 
     bool SaveAs();                  //另存为
     bool SaveFile(const QString &fileName);     //根据路径将文件保存
+    void setCurrentFile(const QString &fileName);   //设定当前文件路径名
 
 //槽函数
 private slots:
