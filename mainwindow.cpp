@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 
 #include <stdio.h>
+#include <windows.h>
 
 #include <QDesktopWidget>
 #include <QFileDialog>
@@ -51,7 +52,7 @@ void MainWindow::CreateActions()
     //打开
     openAction = new QAction(QIcon(":/images/fileopen.png"), tr("&打开..."), this);
     openAction->setStatusTip(tr("打开一个现有文件"));
-    connect(openAction, SIGNAL(triggered()), this, SLOT(OpenFile()));
+    connect(openAction, SIGNAL(triggered()), this, SLOT(Open()));
 
     //保存
     saveAction = new QAction(QIcon(":/images/filesave.png"), tr("&保存"), this);
@@ -165,6 +166,9 @@ void MainWindow::setTextEdit()
     textEdit->setLexer(textLexer);      //添加c++词法分析器
     textEdit->setAutoIndent(true);      //添加自动缩进
 
+    //使用utf-8编码
+    textEdit->setUtf8(true);
+
     //自动补齐
     QsciAPIs *apis = new QsciAPIs(textLexer);
     apis->add(QString("int"));
@@ -195,14 +199,30 @@ void MainWindow::NewFile()
     textEdit->clear();
 }
 
-void MainWindow::Save()
+/**
+ * @brief MainWindow::Save
+ * 该函数实现保存到当前路径操作，如果该文件未保存过，调用SaveAs;
+ * @return bool
+ */
+bool MainWindow::Save()
 {
-    SaveAs();
+    if (curFile.isEmpty())
+    {
+        SaveAs();
+    }
+    else
+    {
+        return SaveFile(curFile);
+    }
 }
 
-void MainWindow::OpenFile()
+void MainWindow::Open()
 {
-
+    QString fileName = QFileDialog::getOpenFileName(this);
+    if (!fileName.isEmpty())
+    {
+        LoadFile(fileName);
+    }
 }
 
 /**
@@ -213,10 +233,11 @@ void MainWindow::Run()
 {
     QString destFile = curFile;
     destFile.replace(".cpp", "");
-    QString command = "start /b g++ -o "+ destFile + " " +curFile;
-    qDebug() << command;
-    system(command.toStdString().data());
-    system(destFile.toStdString().data());
+    QString Bcmd = "g++ -o "+ destFile + " " +curFile;
+    QString Rcmd = "cmd /c " + destFile;
+    qDebug() << Rcmd;
+//    system(command.toStdString().data());
+    WinExec(Rcmd.toStdString().data(), SW_NORMAL);
 }
 
 /**
@@ -225,11 +246,15 @@ void MainWindow::Run()
  */
 void MainWindow::Build()
 {
+    Save();     //对改动的代码进行保存
     QString destFile = curFile;
-    destFile.replace(".cpp", "");
-    QString command = "start /b g++ -o "+ destFile + " " +curFile;
+    destFile.replace(".cpp", "");       //去除后缀
+
+    //调用g++编译命令并将编译信心输出到.log文件
+    QString command = "cmd /c g++ -o "+ destFile + " " +curFile
+            + " 2> " + destFile +".log";
     qDebug() << command;
-    system(command.toStdString().data());
+    WinExec(command.toStdString().data(), SW_HIDE);     //SW_HIDE参数隐藏dow框
 
 }
 
@@ -239,7 +264,10 @@ void MainWindow::Build()
  */
 void MainWindow::About()
 {
-
+    QMessageBox::about(this, tr("关于我们"),
+                       tr("这是一个简易的c语言编辑器"
+                          "主要面向中小学生初学者"
+                          "请联系我xxxxx@foxmail.com"));
 }
 
 /**
@@ -279,16 +307,46 @@ bool MainWindow::SaveFile(const QString &fileName)
         return false;
     }
 
+    //写入文件操作
     QTextStream out(&file);
     QApplication::setOverrideCursor(Qt::WaitCursor);
     out << textEdit->text();
     QApplication::restoreOverrideCursor();
 
-    setCurrentFile(fileName);
+    setCurrentFile(fileName);       //设定当前文件内容
 
     return true;
 }
 
+/**
+ * @brief MainWindow::LoadFile
+ * 该函数用于读取文档
+ * @param fileName
+ */
+void MainWindow::LoadFile(const QString &fileName)
+{
+    QFile file(fileName);
+
+    //判断文件是否打开，没打开不执行
+    if (!file.open(QFile::ReadOnly))
+    {
+        QMessageBox::warning(this, tr("简易编辑器"),
+                             tr("Cannot read file %1:\n%2.")
+                             .arg(fileName)
+                             .arg(file.errorString()));
+        return;
+    }
+
+    //读取文件内容
+    QTextStream in(&file);
+
+    //设置光标
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+    textEdit->setText(in.readAll());
+    QApplication::restoreOverrideCursor();
+
+    setCurrentFile(fileName);
+}
 void MainWindow::setCurrentFile(const QString &fileName)
 {
     curFile = fileName;

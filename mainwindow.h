@@ -61,12 +61,13 @@ private:
     bool SaveAs();                  //另存为
     bool SaveFile(const QString &fileName);     //根据路径将文件保存
     void setCurrentFile(const QString &fileName);   //设定当前文件路径名
+    void LoadFile(const QString &fileName);         //读取文件
 
 //槽函数
 private slots:
     void NewFile();
-    void Save();
-    void OpenFile();
+    bool Save();
+    void Open();
     void Run();
     void Build();
     void About();
