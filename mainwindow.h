@@ -2,9 +2,10 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-
 #include <QTextEdit>
+#include <QVBoxLayout>
 #include <Qsci/qsciscintilla.h>
+
 
 
 
@@ -41,11 +42,16 @@ private:
     //toolBar
     QToolBar *fileToolBar;      //文件工具栏，新建，打开，保存
     QToolBar *buildToolBar;     //编译，运行工具栏
-    QToolBar *aboutToolBar;
+    QToolBar *aboutToolBar;     //相关工作栏
+
+    //QgridLayout
+    QVBoxLayout *mainLayout;
+
 
     //textEdit
 //    QTextEdit *textEdit;
     QsciScintilla *textEdit;    //代码编辑框
+    QTextEdit *LogText;         //build log text;
     QString curFile;            //当前打开文件的路径
 
 private:
@@ -57,6 +63,7 @@ private:
     void initUI();                  //初始化界面
     void deleteUI();                //清除构建的元素，防止内存泄漏
     void setTextEdit();             //初始化编辑器，并将代码编辑器放在窗口中间
+    void initLogtext();             //初始化编译日志text
 
     bool SaveAs();                  //另存为
     bool SaveFile(const QString &fileName);     //根据路径将文件保存

@@ -28,8 +28,16 @@ MainWindow::MainWindow(QWidget *parent) :
     this->CreateMenus();
     this->CreateToolBars();
 
+    mainLayout = new QVBoxLayout;
     //设置代码编辑框
     this->setTextEdit();
+    //设置bulid log text；
+//    this->initLogtext();
+
+
+//    mainLayout->addWidget(textEdit);
+////    mainLayout->addWidget(LogText);
+//    setLayout(mainLayout);
 }
 
 MainWindow::~MainWindow()
@@ -56,6 +64,7 @@ void MainWindow::CreateActions()
 
     //保存
     saveAction = new QAction(QIcon(":/images/filesave.png"), tr("&保存"), this);
+    saveAction->setShortcut(tr("Ctrl+S"));
     saveAction->setStatusTip(tr("保存文件"));
     connect(saveAction, SIGNAL(triggered()), this, SLOT(Save()));
 
@@ -192,6 +201,7 @@ void MainWindow::setTextEdit()
 
     //将编辑框设置到窗口中间部分
     this->setCentralWidget(textEdit);
+//    mainLayout->addWidget(textEdit);
 }
 
 void MainWindow::NewFile()
@@ -347,7 +357,16 @@ void MainWindow::LoadFile(const QString &fileName)
 
     setCurrentFile(fileName);
 }
+
 void MainWindow::setCurrentFile(const QString &fileName)
 {
     curFile = fileName;
+}
+
+void MainWindow::initLogtext()
+{
+    LogText = new QTextEdit;
+    LogText->setReadOnly(true);     //设置日志编辑器不可编辑
+
+    mainLayout->addWidget(LogText);
 }
