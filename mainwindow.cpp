@@ -9,6 +9,7 @@
 #include <QMessageBox>
 #include <QTextStream>
 #include <QDebug>
+#include <QWidget>
 
 #include <Qsci/qsciapis.h>
 #include <Qsci/qscilexercpp.h>
@@ -23,6 +24,8 @@ MainWindow::MainWindow(QWidget *parent) :
     //初始化UI
     initUI();
 
+    QWidget* mainWidget = new QWidget;      //主窗口
+
     //生成菜单，工具栏等
     this->CreateActions();
     this->CreateMenus();
@@ -32,12 +35,14 @@ MainWindow::MainWindow(QWidget *parent) :
     //设置代码编辑框
     this->setTextEdit();
     //设置bulid log text；
-//    this->initLogtext();
+    this->initLogtext();
 
+    //设置layout布局
+    mainLayout->addWidget(textEdit, 0);
+    mainLayout->addWidget(LogText);
+    mainWidget->setLayout(mainLayout);
+    this->setCentralWidget(mainWidget);
 
-//    mainLayout->addWidget(textEdit);
-////    mainLayout->addWidget(LogText);
-//    setLayout(mainLayout);
 }
 
 MainWindow::~MainWindow()
@@ -191,7 +196,7 @@ void MainWindow::setTextEdit()
     //设置行数区域
     textEdit->setMarginType(0, QsciScintilla::NumberMargin);
     textEdit->setMarginLineNumbers(0, true);
-    textEdit->setMarginWidth(0,30);
+    textEdit->setMarginWidth(0,20);
 
     //自动折叠区域
 //    textEdit->setMarginType(3, QsciScintilla::SymbolMargin);
@@ -200,7 +205,7 @@ void MainWindow::setTextEdit()
 //    textEdit->setMarginSensitivity(3, true);
 
     //将编辑框设置到窗口中间部分
-    this->setCentralWidget(textEdit);
+//    this->setCentralWidget(textEdit);
 //    mainLayout->addWidget(textEdit);
 }
 
@@ -368,5 +373,7 @@ void MainWindow::initLogtext()
     LogText = new QTextEdit;
     LogText->setReadOnly(true);     //设置日志编辑器不可编辑
 
-    mainLayout->addWidget(LogText);
+    LogText->setFixedHeight(115);
+    LogText->setText(tr("--编译信息--"));
+//    mainLayout->addWidget(LogText);
 }
