@@ -254,15 +254,20 @@ void MainWindow::Run()
     QString Rcmd = "cmd /c " + destFile;
     qDebug() << Rcmd;
 //    system(command.toStdString().data());
-    Build();
-    WinExec(Rcmd.toStdString().data(), SW_NORMAL);
+
+    bool isSucess = Build();
+    if (isSucess)
+    {
+        WinExec(Rcmd.toStdString().data(), SW_NORMAL);
+    }
+
 }
 
 /**
  * @brief MainWindow::Build
  * 构建程序
  */
-void MainWindow::Build()
+bool MainWindow::Build()
 {
     Save();     //对改动的代码进行保存
     QString destFile = curFile;
@@ -277,7 +282,7 @@ void MainWindow::Build()
     //WinExec函数不是阻塞函数，这里使用QProcess函数阻塞调用
     QProcess::execute(command.toStdString().data());
 
-    LoadLogFile(destFile+".log");
+    return LoadLogFile(destFile+".log");
 }
 
 /**
@@ -385,31 +390,36 @@ void MainWindow::initLogtext()
 //    mainLayout->addWidget(LogText);
 }
 
-void MainWindow::LoadLogFile(const QString &fileName)
+bool MainWindow::LoadLogFile(const QString &fileName)
 {
     QFile file(fileName);
 
     if (!file.open(QFile::ReadOnly))
     {
-        return ;
+        return false;
     }
 
     QTextStream in(&file);
 //    qDebug() << in.readAll();
     QString logInfo = in.readAll();
 
+    bool isSucess;
     //根据log文件的空与否判断编译是否有误
     if (logInfo.isEmpty())
     {
         logInfo = "--编译信息--"+ logInfo+"\r\n编译成功";
+        isSucess = true;
     }
     else
     {
-        logInfo = "--编译信息--\r\n"+ logInfo;
+        logInfo = "--编译信息--\r\n--编译失败--\r\n"+ logInfo;
+        isSucess = false;
     }
 
     //将编译信息填写到编译信息框
     QApplication::setOverrideCursor(Qt::WaitCursor);
     LogText->setText(logInfo);
     QApplication::restoreOverrideCursor();
+
+    return isSucess;
 }

@@ -69,7 +69,7 @@ private:
     bool SaveFile(const QString &fileName);     //根据路径将文件保存
     void setCurrentFile(const QString &fileName);   //设定当前文件路径名
     void LoadFile(const QString &fileName);         //读取文件
-    void LoadLogFile(const QString &fileName);      //读取编译信息文件
+    bool LoadLogFile(const QString &fileName);      //读取编译信息文件
 
 //槽函数
 private slots:
@@ -77,7 +77,7 @@ private slots:
     bool Save();
     void Open();
     void Run();
-    void Build();
+    bool Build();
     void About();
 };
 
