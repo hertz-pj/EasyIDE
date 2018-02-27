@@ -10,6 +10,7 @@
 #include <QTextStream>
 #include <QDebug>
 #include <QWidget>
+#include <QProcess>
 
 #include <Qsci/qsciapis.h>
 #include <Qsci/qscilexercpp.h>
@@ -212,6 +213,7 @@ void MainWindow::setTextEdit()
 void MainWindow::NewFile()
 {
     textEdit->clear();
+    setCurrentFile("");
 }
 
 /**
@@ -252,6 +254,7 @@ void MainWindow::Run()
     QString Rcmd = "cmd /c " + destFile;
     qDebug() << Rcmd;
 //    system(command.toStdString().data());
+    Build();
     WinExec(Rcmd.toStdString().data(), SW_NORMAL);
 }
 
@@ -269,8 +272,12 @@ void MainWindow::Build()
     QString command = "cmd /c g++ -o "+ destFile + " " +curFile
             + " 2> " + destFile +".log";
     qDebug() << command;
-    WinExec(command.toStdString().data(), SW_HIDE);     //SW_HIDE参数隐藏dow框
+//    WinExec(command.toStdString().data(), SW_HIDE);     //SW_HIDE参数隐藏dow框
 
+    //WinExec函数不是阻塞函数，这里使用QProcess函数阻塞调用
+    QProcess::execute(command.toStdString().data());
+
+    LoadLogFile(destFile+".log");
 }
 
 /**
@@ -376,4 +383,33 @@ void MainWindow::initLogtext()
     LogText->setFixedHeight(115);
     LogText->setText(tr("--编译信息--"));
 //    mainLayout->addWidget(LogText);
+}
+
+void MainWindow::LoadLogFile(const QString &fileName)
+{
+    QFile file(fileName);
+
+    if (!file.open(QFile::ReadOnly))
+    {
+        return ;
+    }
+
+    QTextStream in(&file);
+//    qDebug() << in.readAll();
+    QString logInfo = in.readAll();
+
+    //根据log文件的空与否判断编译是否有误
+    if (logInfo.isEmpty())
+    {
+        logInfo = "--编译信息--"+ logInfo+"\r\n编译成功";
+    }
+    else
+    {
+        logInfo = "--编译信息--\r\n"+ logInfo;
+    }
+
+    //将编译信息填写到编译信息框
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+    LogText->setText(logInfo);
+    QApplication::restoreOverrideCursor();
 }
