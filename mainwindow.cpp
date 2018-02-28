@@ -178,11 +178,13 @@ void MainWindow::setTextEdit()
     textEdit = new QsciScintilla;
     QsciLexerCPP *textLexer = new QsciLexerCPP;     //C++词法分析器
 //    textLexer->setColor(QColor(Qt:: yellow),QsciLexerCPP::CommentLine);    //设置自带的注释行为绿色
+//    textLexer->setAutoIndentStyle(5);
     textEdit->setLexer(textLexer);      //添加c++词法分析器
     textEdit->setAutoIndent(true);      //添加自动缩进
 
     //使用utf-8编码
     textEdit->setUtf8(true);
+
 
     //自动补齐
     QsciAPIs *apis = new QsciAPIs(textLexer);
@@ -194,10 +196,25 @@ void MainWindow::setTextEdit()
     textEdit->setAutoCompletionThreshold(1);
     textEdit->setAutoCompletionFillupsEnabled(true);
 
+    //错误箭头区域
+    textEdit->setMarginType(0, QsciScintilla::SymbolMargin);
+    textEdit->setMarginLineNumbers(0, false);
+    textEdit->setMarginWidth(0, 10);
+    textEdit->setMarginSensitivity(0, true);
+//    textEdit->setMarginsBackgroundColor(QColor("#bbfaae"));
+    textEdit->setMarginMarkerMask(0, 0x04);
+
+    textEdit->markerDefine(QsciScintilla::RightTriangle, 0);
+    textEdit->setMarkerBackgroundColor(QColor("#ee1111"), 0);
+
+    textEdit->markerAdd(0, 0);
+
     //设置行数区域
-    textEdit->setMarginType(0, QsciScintilla::NumberMargin);
-    textEdit->setMarginLineNumbers(0, true);
-    textEdit->setMarginWidth(0,20);
+    textEdit->setMarginType(1, QsciScintilla::NumberMargin);
+    textEdit->setMarginLineNumbers(1, true);
+    textEdit->setMarginWidth(1, 30);
+
+
 
     //自动折叠区域
 //    textEdit->setMarginType(3, QsciScintilla::SymbolMargin);
@@ -390,6 +407,11 @@ void MainWindow::initLogtext()
 //    mainLayout->addWidget(LogText);
 }
 
+/**
+ * @brief MainWindow::LoadLogFile
+ * @param fileName
+ * @return 返回true表示编译成功，返回false表示编译失败
+ */
 bool MainWindow::LoadLogFile(const QString &fileName)
 {
     QFile file(fileName);
@@ -407,12 +429,12 @@ bool MainWindow::LoadLogFile(const QString &fileName)
     //根据log文件的空与否判断编译是否有误
     if (logInfo.isEmpty())
     {
-        logInfo = "--编译信息--"+ logInfo+"\r\n编译成功";
+        logInfo = "--编译成功--";
         isSucess = true;
     }
     else
     {
-        logInfo = "--编译信息--\r\n--编译失败--\r\n"+ logInfo;
+        logInfo = "--编译失败--\r\n"+ logInfo;
         isSucess = false;
     }
 
