@@ -11,6 +11,7 @@
 #include <QDebug>
 #include <QWidget>
 #include <QProcess>
+#include <QRegExp>
 
 #include <Qsci/qsciapis.h>
 #include <Qsci/qscilexercpp.h>
@@ -207,8 +208,6 @@ void MainWindow::setTextEdit()
     textEdit->markerDefine(QsciScintilla::RightTriangle, 0);
     textEdit->setMarkerBackgroundColor(QColor("#ee1111"), 0);
 
-    textEdit->markerAdd(0, 0);
-
     //设置行数区域
     textEdit->setMarginType(1, QsciScintilla::NumberMargin);
     textEdit->setMarginLineNumbers(1, true);
@@ -298,7 +297,7 @@ bool MainWindow::Build()
 
     //WinExec函数不是阻塞函数，这里使用QProcess函数阻塞调用
     QProcess::execute(command.toStdString().data());
-
+    textEdit->markerDeleteAll();        //去掉错误箭头
     return LoadLogFile(destFile+".log");
 }
 
@@ -436,6 +435,9 @@ bool MainWindow::LoadLogFile(const QString &fileName)
     {
         logInfo = "--编译失败--\r\n"+ logInfo;
         isSucess = false;
+        //标出错误行数
+        int errorline = GeterrorLine(logInfo);
+        this->SeterrorMarker(errorline);
     }
 
     //将编译信息填写到编译信息框
@@ -444,4 +446,32 @@ bool MainWindow::LoadLogFile(const QString &fileName)
     QApplication::restoreOverrideCursor();
 
     return isSucess;
+}
+
+void MainWindow::SeterrorMarker(int line)
+{
+    //设置错误显示箭头
+    textEdit->markerAdd(line-1, 0);
+}
+
+/**
+ * @brief MainWindow::GeterrorLine
+ * @param errorInfo
+ * @return 错误具体行数
+ */
+int MainWindow::GeterrorLine(const QString &errorInfo)
+{
+    QRegExp rx(".cpp:(\\d+):2");
+
+    int pos = errorInfo.indexOf(rx);
+    qDebug() << pos;
+
+    if (pos >= 0)
+    {
+        qDebug() << "xx";
+        qDebug() << rx.cap(0);
+        qDebug() << rx.cap(1);
+    }
+
+    return rx.cap(1).toInt();
 }

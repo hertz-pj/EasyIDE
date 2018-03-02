@@ -70,6 +70,8 @@ private:
     void setCurrentFile(const QString &fileName);   //设定当前文件路径名
     void LoadFile(const QString &fileName);         //读取文件
     bool LoadLogFile(const QString &fileName);      //读取编译信息文件
+    void SeterrorMarker(int line);                  //设置错误指标
+    int GeterrorLine(const QString &errorInfo);     //提取错误行数
 
 //槽函数
 private slots:
