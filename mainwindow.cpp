@@ -266,6 +266,7 @@ void MainWindow::Run()
 {
     QString destFile = curFile;
     destFile.replace(".cpp", "");
+
     QString Bcmd = "g++ -o "+ destFile + " " +curFile;
     QString Rcmd = "cmd /c " + destFile;
     qDebug() << Rcmd;
@@ -289,8 +290,11 @@ bool MainWindow::Build()
     QString destFile = curFile;
     destFile.replace(".cpp", "");       //去除后缀
 
+    QString appPath = QCoreApplication::applicationDirPath();
+    QString MingwPath = appPath+"/MinGW/bin/";
+
     //调用g++编译命令并将编译信心输出到.log文件
-    QString command = "cmd /c g++ -o "+ destFile + " " +curFile
+    QString command = "cmd /c " +MingwPath +"g++ -o "+ destFile + " " +curFile
             + " 2> " + destFile +".log";
     qDebug() << command;
 //    WinExec(command.toStdString().data(), SW_HIDE);     //SW_HIDE参数隐藏dow框
@@ -311,6 +315,8 @@ void MainWindow::About()
                        tr("这是一个简易的c语言编辑器"
                           "主要面向中小学生初学者"
                           "请联系我xxxxx@foxmail.com"));
+
+    qDebug()<<"appDirPath: "<<QCoreApplication::applicationDirPath();
 }
 
 /**
