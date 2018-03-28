@@ -292,10 +292,10 @@ bool MainWindow::Build()
 
     QString appPath = QCoreApplication::applicationDirPath();
     QString MingwPath = appPath+"/MinGW/bin/";
-
+    QString libStr = "-lgraphics -lgdi32 -limm32 -lmsimg32 -lole32 -loleaut32 -lwinmm -luuid -mwindows";
     //调用g++编译命令并将编译信心输出到.log文件
     QString command = "cmd /c " +MingwPath +"g++ -o "+ destFile + " " +curFile
-            + " 2> " + destFile +".log";
+            +" -lgraphics -lgdi32 -limm32 -lmsimg32 -lole32 -loleaut32 -lwinmm -luuid -mwindows"+ " 2> " + destFile +".log";
     qDebug() << command;
 //    WinExec(command.toStdString().data(), SW_HIDE);     //SW_HIDE参数隐藏dow框
 
