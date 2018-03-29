@@ -85,6 +85,11 @@ void MainWindow::CreateActions()
     buildAction->setStatusTip(tr("构建该程序"));
     connect(buildAction, SIGNAL(triggered()), this, SLOT(Build()));
 
+    //构建ege
+    egebuildAction = new QAction(tr("&EGE"), this);
+    egebuildAction->setStatusTip(tr("使用ege构建该程序"));
+    connect(egebuildAction, SIGNAL(triggered()), this, SLOT(RunEge()));
+
     //相关
     aboutAction = new QAction(QIcon(":/images/about.png") ,tr("&关于"), this);
     aboutAction->setStatusTip(tr("关于我们"));
@@ -108,6 +113,7 @@ void MainWindow::CreateMenus()
     buildMenu = menuBar()->addMenu((tr("&构建")));
     buildMenu->addAction(buildAction);
     buildMenu->addAction(runAction);
+    buildMenu->addAction(egebuildAction);
 
     //关于菜单
     aboutMenu = menuBar()->addMenu(tr("&其他.."));
@@ -130,6 +136,7 @@ void MainWindow::CreateToolBars()
     buildToolBar = addToolBar(tr("&编译"));
     buildToolBar->addAction(buildAction);
     buildToolBar->addAction(runAction);
+    buildToolBar->addAction(egebuildAction);
 
     //创建about工具栏
     aboutToolBar = addToolBar(tr("&相关"));
@@ -295,7 +302,7 @@ bool MainWindow::Build()
     QString libStr = "-lgraphics -lgdi32 -limm32 -lmsimg32 -lole32 -loleaut32 -lwinmm -luuid -mwindows";
     //调用g++编译命令并将编译信心输出到.log文件
     QString command = "cmd /c " +MingwPath +"g++ -o "+ destFile + " " +curFile
-            +" -lgraphics -lgdi32 -limm32 -lmsimg32 -lole32 -loleaut32 -lwinmm -luuid -mwindows"+ " 2> " + destFile +".log";
+            +" 2> " + destFile +".log";
     qDebug() << command;
 //    WinExec(command.toStdString().data(), SW_HIDE);     //SW_HIDE参数隐藏dow框
 
@@ -303,6 +310,44 @@ bool MainWindow::Build()
     QProcess::execute(command.toStdString().data());
     textEdit->markerDeleteAll();        //去掉错误箭头
     return LoadLogFile(destFile+".log");
+}
+
+bool MainWindow::EgeBuild()
+{
+    Save();     //对改动的代码进行保存
+    QString destFile = curFile;
+    destFile.replace(".cpp", "");       //去除后缀
+
+    QString appPath = QCoreApplication::applicationDirPath();
+    QString MingwPath = appPath+"/MinGW/bin/";
+    QString libStr = "-lgraphics -lgdi32 -limm32 -lmsimg32 -lole32 -loleaut32 -lwinmm -luuid -mwindows";
+    //调用g++编译命令并将编译信心输出到.log文件
+    QString command = "cmd /c " +MingwPath +"g++ -o "+ destFile + " " +curFile
+            +" "+ libStr+ " 2> " + destFile +".log";
+    qDebug() << command;
+//    WinExec(command.toStdString().data(), SW_HIDE);     //SW_HIDE参数隐藏dow框
+
+    //WinExec函数不是阻塞函数，这里使用QProcess函数阻塞调用
+    QProcess::execute(command.toStdString().data());
+    textEdit->markerDeleteAll();        //去掉错误箭头
+    return LoadLogFile(destFile+".log");
+}
+
+void MainWindow::RunEge()
+{
+    QString destFile = curFile;
+    destFile.replace(".cpp", "");
+
+    QString Bcmd = "g++ -o "+ destFile + " " +curFile;
+    QString Rcmd = "cmd /c " + destFile;
+    qDebug() << Rcmd;
+//    system(command.toStdString().data());
+
+    bool isSucess = EgeBuild();
+    if (isSucess)
+    {
+        WinExec(Rcmd.toStdString().data(), SW_NORMAL);
+    }
 }
 
 /**

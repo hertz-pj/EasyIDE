@@ -7,8 +7,6 @@
 #include <Qsci/qsciscintilla.h>
 
 
-
-
 namespace Ui {
 class MainWindow;
 }
@@ -38,6 +36,8 @@ private:
     QAction *runAction;         //运行
     QAction *buildAction;       //编译
     QAction *aboutAction;       //关于我们
+    QAction *egebuildAction;    //编译ege程序
+
 
     //toolBar
     QToolBar *fileToolBar;      //文件工具栏，新建，打开，保存
@@ -80,6 +80,8 @@ private slots:
     void Open();
     void Run();
     bool Build();
+    bool EgeBuild();        //用于编译ege
+    void RunEge();          //用于运行ege程序
     void About();
 };
 
