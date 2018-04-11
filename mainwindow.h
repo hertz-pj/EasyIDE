@@ -37,6 +37,7 @@ private:
     QAction *buildAction;       //编译
     QAction *aboutAction;       //关于我们
     QAction *egebuildAction;    //编译ege程序
+    QAction *demoAction;        //打开demo管理器
 
 
     //toolBar
@@ -45,7 +46,7 @@ private:
     QToolBar *aboutToolBar;     //相关工作栏
 
     //QgridLayout
-    QVBoxLayout *mainLayout;
+    QVBoxLayout *mainLayout;    //格子布局
 
 
     //textEdit
@@ -83,6 +84,7 @@ private slots:
     bool EgeBuild();        //用于编译ege
     void RunEge();          //用于运行ege程序
     void About();
+    void DemoConsole();     //打开demo控制器
 };
 
 #endif // MAINWINDOW_H

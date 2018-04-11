@@ -25,13 +25,16 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         main.cpp \
-        mainwindow.cpp
+        mainwindow.cpp \
+    demoview_widget.cpp
 
 HEADERS += \
-        mainwindow.h
+        mainwindow.h \
+    demoview_widget.h
 
 FORMS += \
-        mainwindow.ui
+        mainwindow.ui \
+    demoview_widget.ui
 
 RESOURCES += \
     easyide.qrc

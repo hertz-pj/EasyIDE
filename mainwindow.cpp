@@ -17,6 +17,8 @@
 #include <Qsci/qscilexercpp.h>
 #include <Qsci/qscilexer.h>
 
+#include <demoview_widget.h>
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -94,6 +96,11 @@ void MainWindow::CreateActions()
     aboutAction = new QAction(QIcon(":/images/about.png") ,tr("&关于"), this);
     aboutAction->setStatusTip(tr("关于我们"));
     connect(aboutAction, SIGNAL(triggered()), this, SLOT(About()));
+
+    //demo
+    demoAction = new QAction(tr("&Demo"), this);
+    demoAction->setStatusTip(tr("打开demo管理器"));
+    connect(demoAction, SIGNAL(triggered()), this, SLOT(DemoConsole()));
 }
 
 /**
@@ -108,6 +115,7 @@ void MainWindow::CreateMenus()
     fileMenu->addAction(newAction);
     fileMenu->addAction(openAction);
     fileMenu->addAction(saveAction);
+    fileMenu->addAction(demoAction);
 
     //构建菜单
     buildMenu = menuBar()->addMenu((tr("&构建")));
@@ -131,6 +139,7 @@ void MainWindow::CreateToolBars()
     fileToolBar->addAction(newAction);
     fileToolBar->addAction(openAction);
     fileToolBar->addAction(saveAction);
+    fileToolBar->addAction(demoAction);
 
     //构建工具栏
     buildToolBar = addToolBar(tr("&编译"));
@@ -525,4 +534,11 @@ int MainWindow::GeterrorLine(const QString &errorInfo)
     }
 
     return rx.cap(1).toInt();
+}
+
+void MainWindow::DemoConsole()
+{
+    demoView_widget *widg = new demoView_widget;
+    widg->setWindowModality(Qt::ApplicationModal);        //打开demo窗口时禁用主窗口
+    widg->show();
 }
