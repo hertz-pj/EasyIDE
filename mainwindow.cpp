@@ -541,4 +541,10 @@ void MainWindow::DemoConsole()
     demoView_widget *widg = new demoView_widget;
     widg->setWindowModality(Qt::ApplicationModal);        //打开demo窗口时禁用主窗口
     widg->show();
+    connect(widg, SIGNAL(SendPath(QString)), this, SLOT(LoaddemoFile(QString)));
+}
+
+void MainWindow::LoaddemoFile(const QString& fileName)
+{
+    LoadFile(fileName);
 }

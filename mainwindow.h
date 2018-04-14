@@ -20,6 +20,7 @@ public:
     ~MainWindow();
 
 
+
 private:
     Ui::MainWindow *ui;
 
@@ -69,6 +70,7 @@ private:
     bool SaveAs();                  //另存为
     bool SaveFile(const QString &fileName);     //根据路径将文件保存
     void setCurrentFile(const QString &fileName);   //设定当前文件路径名
+
     void LoadFile(const QString &fileName);         //读取文件
     bool LoadLogFile(const QString &fileName);      //读取编译信息文件
     void SeterrorMarker(int line);                  //设置错误指标
@@ -85,6 +87,7 @@ private slots:
     void RunEge();          //用于运行ege程序
     void About();
     void DemoConsole();     //打开demo控制器
+    void LoaddemoFile(const QString &fileName);    //打开demo文件
 };
 
 #endif // MAINWINDOW_H
